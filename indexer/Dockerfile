@@ -1,6 +1,10 @@
-FROM python:3.6-slim
+FROM python:3.8
 WORKDIR /code
-ADD . /code
-RUN pip install -r requirements.txt
-ENTRYPOINT [ "python" ]
+# Use docker cache to speed up the process of package installation
+COPY requirements.txt requirements.txt
+
+# install dash_req.txt from the `code` directory in docker (e.g., dashboard)
+RUN pip install -U pip && pip install -r requirements.txt
+
 CMD [ "python", "-m", "indexer" ]
+

@@ -1,7 +1,7 @@
 version: '2.1'
 services:
   elasticsearch:
-    image: elasticsearch:5.3
+    image: elasticsearch-image
     container_name: elasticsearch
     healthcheck:
         test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
@@ -19,7 +19,7 @@ services:
       - deploy_network
 
   kibana:
-    image: kibana:5.3
+    image: kibana-image
     container_name: kibana
     depends_on:
       elasticsearch:
@@ -38,6 +38,8 @@ services:
     restart: always
     networks:
       - deploy_network
+    volumes:
+      - .:/code
     depends_on:
       elasticsearch:
           condition: service_healthy
