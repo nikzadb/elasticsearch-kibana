@@ -3,6 +3,7 @@ services:
   elasticsearch:
     image: elasticsearch-image
     container_name: elasticsearch
+    build: elasticsearch/
     healthcheck:
         test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
         interval: 30s
@@ -13,14 +14,15 @@ services:
       - bootstrap.memory_local=true
       - cluster.name=adlp-cluster
     ports:
-      - 19200:9200
-      - 19300:9300
+      - "9200:9200"
+      - "9300:9300"
     networks:
       - deploy_network
 
   kibana:
     image: kibana-image
     container_name: kibana
+    build: kibana/
     depends_on:
       elasticsearch:
           condition: service_healthy
@@ -44,23 +46,5 @@ services:
       elasticsearch:
           condition: service_healthy
 
-#  dashboard:
-#    image: dashboard
-#    volumes:
-#      - .:/code
-#    build:
-#      context: .
-#      dockerfile: ./dashboard/Dockerfile
-#    restart: always
-#    networks: [deploy_network]
-#    environment:
-#      - PORT=8050
-#      - HOST=0.0.0.0
-#    ports:
-#      - "${DASHBOARD_PORT}:8050"
-#    depends_on:
-#      - elasticsearch
-#      - kibana
-#
 networks:
   deploy_network:
