@@ -1,3 +1,6 @@
+"""
+Under developemnt. It is not optimised.
+"""
 import elasticsearch
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
@@ -12,6 +15,7 @@ df = pd.read_csv('data/BBC-News-Train.csv', sep=',', usecols=['Text'])
 text = TextBlob(df.to_string())
 
 def index_text():
+    # TODO: change
     for idx, txt in enumerate(text):
         if idx % 1000 == 0:
             print(f"----> {idx} <---")
