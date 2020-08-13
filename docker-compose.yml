@@ -1,38 +1,55 @@
-version: '2.1'
+# https://github.com/deviantony/docker-elk
+version: '3.2'
 services:
   elasticsearch:
-    image: elasticsearch-image
-    container_name: elasticsearch
-    build: elasticsearch/
+    build:
+      context: elasticsearch/
+      args:
+          ELK_VERSION: $ELK_VERSION
+    volumes:
+      - type: bind
+        source: ./elasticsearch/config/elasticsearch.yml
+        target: /usr/share/elasticsearch/config/elasticsearch.yml
+        read_only: true
+#      - type: volume
+#        source: elasticsearch
+#        target: /usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+      ELASTIC_PASSWORD: changeme
+      # Use single node discovery in order to disable production mode and avoid bootstrap checks
+      # see https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
+      discovery.type: single-node
+    networks:
+      - deploy_network
     healthcheck:
         test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
         interval: 30s
         timeout: 30s
         retries: 3
-    environment:
-      - "ES_JAVA_OPTS=-Xmx2g -Xms2g"
-      - bootstrap.memory_local=true
-      - cluster.name=adlp-cluster
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    networks:
-      - deploy_network
 
   kibana:
-    image: kibana-image
-    container_name: kibana
-    build: kibana/
-    depends_on:
-      elasticsearch:
-          condition: service_healthy
+    build:
+      context: kibana/
+      args:
+          ELK_VERSION: $ELK_VERSION
+    volumes:
+      - type: bind
+        source: ./kibana/config/kibana.yml
+        target: /usr/share/kibana/config/kibana.yml
+        read_only: true
     ports:
-     - "5601:5601"
+      - "5601:5601"
     environment:
-     - ELASTICSEARCH_URL=http://elasticsearch:9200
-     - XPACK_MONITORING_ENABLED=false
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - XPACK_MONITORING_ENABLED=false
     networks:
-     - deploy_network
+      - deploy_network
+    depends_on:
+      - elasticsearch
 
   indexer:
     container_name: indexer
@@ -42,9 +59,11 @@ services:
       - deploy_network
     volumes:
       - .:/code
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
     depends_on:
-      elasticsearch:
-          condition: service_healthy
+      - elasticsearch
+
 
 networks:
   deploy_network:
