@@ -6,7 +6,7 @@ import pandas as pd
 import time
 
 # es = Elasticsearch(hosts=[{"host":'elasticsearch'}]) # what should I put here?
-es = Elasticsearch(hosts="http://elastic:changeme@elasticsearch:9200/")
+elastic = Elasticsearch(hosts="http://elastic:changeme@elasticsearch:9200/")
 
 df = pd.read_csv('data/BBC-News-Train.csv', sep=',', usecols=['Text'])
 text = TextBlob(df.to_string())
