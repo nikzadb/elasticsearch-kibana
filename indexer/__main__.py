@@ -1,3 +1,6 @@
+"""
+Under developemnt. It is not optimised.
+"""
 import elasticsearch
 from elasticsearch import Elasticsearch, helpers
 from textblob import TextBlob
